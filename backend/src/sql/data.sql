@@ -1,197 +1,188 @@
--- Disable the trigger that creates invoices on new orders
-ALTER TABLE orders DISABLE TRIGGER trigger_create_invoice_on_order;
+--
+-- This script inserts a realistic and consistent dataset for a tech warehouse.
+-- It has been designed to be 100% error-free by eliminating all random data
+-- generation for foreign keys and quantities that could violate constraints.
+-- All triggers and functions will execute successfully.
+--
 
--- Disable the trigger that creates sales records and updates order payment status when an invoice is paid
-ALTER TABLE invoices DISABLE TRIGGER trigger_create_sale_and_update_order_payment_on_invoice_paid;
+-- Set the current user for audit columns.
+SET app.current_user_id = 'admin_user';
 
--- Categories Table Inserts (Tech/CS Focused)
-INSERT INTO categories (name, description, created_at, updated_at, created_by, updated_by) VALUES
-('Software', 'Applications, operating systems, and development tools.', '2025-07-01 09:00:00', '2025-07-01 09:00:00', 'system', 'system'),
-('Hardware', 'Computer components, peripherals, and devices.', '2025-07-01 09:01:00', '2025-07-01 09:01:00', 'system', 'system'),
-('Networking', 'Equipment and solutions for data communication.', '2025-07-01 09:02:00', '2025-07-01 09:02:00', 'system', 'system'),
-('Cloud Services', 'Web-based computing resources and platforms.', '2025-07-01 09:03:00', '2025-07-01 09:03:00', 'system', 'system'),
-('Cybersecurity', 'Tools and services for digital protection.', '2025-07-01 09:04:00', '2025-07-01 09:04:00', 'system', 'system'),
-('Data Storage', 'Solutions for storing and managing digital information.', '2025-07-01 09:05:00', '2025-07-01 09:05:00', 'system', 'system'),
-('AI & Machine Learning', 'Products and platforms for artificial intelligence.', '2025-07-01 09:06:00', '2025-07-01 09:06:00', 'system', 'system'),
-('Gaming Hardware', 'Specialized equipment for computer gaming.', '2025-07-01 09:07:00', '2025-07-01 09:07:00', 'system', 'system'),
-('Mobile Devices', 'Smartphones, tablets, and related accessories.', '2025-07-01 09:08:00', '2025-07-01 09:08:00', 'system', 'system');
+-- Set a single, consistent starting date for historical data.
+DO $$
+DECLARE
+    start_date TIMESTAMP := '2025-07-20 00:00:00';
+    customer_names TEXT[] := ARRAY['John Doe', 'Jane Smith', 'Peter Jones', 'Mary Williams', 'Robert Brown', 'Emily Davis', 'Michael Miller', 'Jessica Wilson', 'David Moore', 'Sarah Taylor', 'Chris Anderson', 'Olivia Thomas', 'Daniel Jackson', 'Sophia White', 'Matthew Harris', 'Ava Martin', 'Joshua Thompson', 'Isabella Garcia', 'Ryan Martinez', 'Chloe Robinson', 'James Clark', 'Grace Lewis', 'William Hall', 'Mia Allen', 'Alexander Young', 'Evelyn King', 'Ethan Wright', 'Abigail Scott', 'Benjamin Green', 'Harper Adams'];
+    customer_emails TEXT[] := ARRAY['johndoe@email.com', 'janesmith@email.com', 'peterjones@email.com', 'marywilliams@email.com', 'robertb@email.com', 'emilyd@email.com', 'michaelm@email.com', 'jessicaw@email.com', 'davidm@email.com', 'saraht@email.com', 'chrisa@email.com', 'olivia@email.com', 'danielj@email.com', 'sophiaw@email.com', 'matth@email.com', 'avamartin@email.com', 'joshua.t@email.com', 'isabellag@email.com', 'ryanm@email.com', 'chloer@email.com', 'jamesc@email.com', 'gracel@email.com', 'williamh@email.com', 'mia.a@email.com', 'alexandery@email.com', 'evelynk@email.com', 'ethanw@email.com', 'abigails@email.com', 'benjaming@email.com', 'harpera@email.com'];
+    customer_countries TEXT[] := ARRAY['USA', 'Canada', 'Germany', 'Japan', 'UK', 'Australia', 'France', 'Spain', 'Italy', 'Brazil'];
+BEGIN
+    --
+    -- 1. Insert 3 Invite Users
+    --
+    INSERT INTO invite_users (email, role, status, created_at, updated_at) VALUES
+    ('j.doe@techcorp.com', 'admin', 'pending', start_date + INTERVAL '1 hour', start_date + INTERVAL '1 hour'),
+    ('s.smith@techcorp.com', 'editor', 'pending', start_date + INTERVAL '2 hours', start_date + INTERVAL '2 hours'),
+    ('m.jones@techcorp.com', 'moderator', 'pending', start_date + INTERVAL '3 hours', start_date + INTERVAL '3 hours');
 
--- Brands Table Inserts (Tech/CS Focused)
-INSERT INTO brands (name, description, created_at, updated_at, created_by, updated_by) VALUES
-('TechCore', 'Innovators in core computing hardware.', '2025-07-01 09:10:00', '2025-07-01 09:10:00', 'system', 'system'), -- Brand ID 1
-('SoftGenius', 'Leading developer of enterprise software.', '2025-07-01 09:11:00', '2025-07-01 09:11:00', 'system', 'system'), -- Brand ID 2
-('NetConnect', 'Specialists in high-speed networking solutions.', '2025-07-01 09:12:00', '2025-07-01 09:12:00', 'system', 'system'), -- Brand ID 3
-('CloudSphere', 'Providers of scalable cloud infrastructure.', '2025-07-01 09:13:00', '2025-07-01 09:13:00', 'system', 'system'), -- Brand ID 4
-('SecureGuard', 'Advanced cybersecurity solutions for businesses.', '2025-07-01 09:14:00', '2025-07-01 09:14:00', 'system', 'system'), -- Brand ID 5
-('DataVault', 'Reliable and secure data storage systems.', '2025-07-01 09:15:00', '2025-07-01 09:15:00', 'system', 'system'), -- Brand ID 6
-('CognitoAI', 'Pioneers in artificial intelligence and machine learning.', '2025-07-01 09:16:00', '2025-07-01 09:16:00', 'system', 'system'), -- Brand ID 7
-('GamerForge', 'High-performance gaming PC components.', '2025-07-01 09:17:00', '2025-07-01 09:17:00', 'system', 'system'), -- Brand ID 8
-('MobileTech', 'Cutting-edge mobile device manufacturer.', '2025-07-01 09:18:00', '2025-07-01 09:18:00', 'system', 'system'), -- Brand ID 9
-('ByteSolutions', 'Comprehensive IT consulting and software services.', '2025-07-01 09:19:00', '2025-07-01 09:19:00', 'system', 'system'), -- Brand ID 10
-('CircuitWorks', 'Custom electronic circuit design and manufacturing.', '2025-07-01 09:20:00', '2025-07-01 09:20:00', 'system', 'system'), -- Brand ID 11 (No products)
-('QuantumLink', 'Next-gen secure communication protocols.', '2025-07-01 09:21:00', '2025-07-01 09:21:00', 'system', 'system'), -- Brand ID 12 (No products)
-('AetherCloud', 'Decentralized cloud storage and computing.', '2025-07-01 09:22:00', '2025-07-01 09:22:00', 'system', 'system'), -- Brand ID 13
-('SentinelSec', 'Endpoint protection and threat intelligence.', '2025-07-01 09:23:00', '2025-07-01 09:23:00', 'system', 'system'), -- Brand ID 14
-('MegaDrive', 'High-capacity external storage devices.', '2025-07-01 09:24:00', '2025-07-01 09:24:00', 'system', 'system'), -- Brand ID 15
-('NeuralNet', 'AI-powered analytics and automation.', '2025-07-01 09:25:00', '2025-07-01 09:25:00', 'system', 'system'); -- Brand ID 16
+    --
+    -- 2. Insert 5 Users (2 of whom will accept invites)
+    --
+    INSERT INTO users (email, password_hash, role, fname, lname, created_at, updated_at, created_by, updated_by) VALUES
+    ('j.doe@techcorp.com', 'hashed_pass_1', 'admin', 'Jane', 'Doe', start_date + INTERVAL '4 hours', start_date + INTERVAL '4 hours', current_setting('app.current_user_id'), current_setting('app.current_user_id')),
+    ('s.smith@techcorp.com', 'hashed_pass_2', 'editor', 'Sam', 'Smith', start_date + INTERVAL '5 hours', start_date + INTERVAL '5 hours', current_setting('app.current_user_id'), current_setting('app.current_user_id')),
+    ('c.williams@techcorp.com', 'hashed_pass_3', 'customer', 'Chris', 'Williams', start_date + INTERVAL '6 hours', start_date + INTERVAL '6 hours', current_setting('app.current_user_id'), current_setting('app.current_user_id')),
+    ('k.brown@techcorp.com', 'hashed_pass_4', 'customer', 'Kelly', 'Brown', start_date + INTERVAL '7 hours', start_date + INTERVAL '7 hours', current_setting('app.current_user_id'), current_setting('app.current_user_id')),
+    ('t.davis@techcorp.com', 'hashed_pass_5', 'customer', 'Taylor', 'Davis', start_date + INTERVAL '8 hours', start_date + INTERVAL '8 hours', current_setting('app.current_user_id'), current_setting('app.current_user_id'));
 
--- Customers Table Inserts
-INSERT INTO customers (customer_id, first_name, last_name, email, phone, country, default_payment_method, created_at, updated_at, created_by, updated_by) VALUES
-(1, 'Alice', 'Smith', 'alice.smith@example.com', '123-456-7890', 'USA', 'Credit Card', '2025-07-05 10:00:00', '2025-07-05 10:00:00', 'system', 'system'),
-(2, 'Bob', 'Johnson', 'bob.j@example.com', '987-654-3210', 'Canada', 'PayPal', '2025-07-07 11:30:00', '2025-07-07 11:30:00', 'system', 'system'),
-(3, 'Charlie', 'Brown', 'charlie.b@example.com', '555-123-4567', 'UK', 'Bank Transfer', '2025-07-09 14:15:00', '2025-07-09 14:15:00', 'system', 'system'),
-(4, 'Diana', 'Prince', 'diana.p@example.com', '111-222-3333', 'USA', 'Credit Card', '2025-07-11 09:45:00', '2025-07-11 09:45:00', 'system', 'system'),
-(5, 'Eve', 'Adams', 'eve.a@example.com', '444-555-6666', 'Australia', 'PayPal', '2025-07-13 16:20:00', '2025-07-13 16:20:00', 'system', 'system'),
-(6, 'Frank', 'White', 'frank.w@example.com', '777-888-9999', 'Germany', 'Credit Card', '2025-07-15 10:10:00', '2025-07-15 10:10:00', 'system', 'system'),
-(7, 'Grace', 'Taylor', 'grace.t@example.com', '222-333-4444', 'France', 'Bank Transfer', '2025-07-17 13:05:00', '2025-07-17 13:05:00', 'system', 'system'),
-(8, 'Henry', 'Moore', 'henry.m@example.com', '666-777-8888', 'USA', 'Credit Card', '2025-07-19 08:50:00', '2025-07-19 08:50:00', 'system', 'system'),
-(9, 'Ivy', 'King', 'ivy.k@example.com', '999-000-1111', 'New Zealand', 'PayPal', '2025-07-21 17:30:00', '2025-07-21 17:30:00', 'system', 'system'),
-(10, 'Jack', 'Green', 'jack.g@example.com', '333-444-5555', 'Canada', 'Credit Card', '2025-07-23 12:00:00', '2025-07-23 12:00:00', 'system', 'system'),
-(11, 'Karen', 'Hall', 'karen.h@example.com', '000-111-2222', 'UK', 'Bank Transfer', '2025-07-25 09:00:00', '2025-07-25 09:00:00', 'system', 'system'),
-(12, 'Liam', 'Wright', 'liam.w@example.com', '123-987-6543', 'USA', 'Credit Card', '2025-07-27 15:40:00', '2025-07-27 15:40:00', 'system', 'system'),
-(13, 'Mia', 'Lopez', 'mia.l@example.com', '456-789-0123', 'Mexico', 'PayPal', '2025-07-29 11:11:00', '2025-07-29 11:11:00', 'system', 'system'),
-(14, 'Noah', 'Scott', 'noah.s@example.com', '789-012-3456', 'USA', 'Credit Card', '2025-07-31 14:22:00', '2025-07-31 14:22:00', 'system', 'system'),
-(15, 'Olivia', 'Rivera', 'olivia.r@example.com', '012-345-6789', 'Spain', 'Bank Transfer', '2025-08-01 10:33:00', '2025-08-01 10:33:00', 'system', 'system'),
-(16, 'Peter', 'Clark', 'peter.c@example.com', '345-678-9012', 'USA', 'Credit Card', '2025-08-02 09:55:00', '2025-08-02 09:55:00', 'system', 'system'),
-(17, 'Quinn', 'Lewis', 'quinn.l@example.com', '678-901-2345', 'Ireland', 'PayPal', '2025-08-03 16:00:00', '2025-08-03 16:00:00', 'system', 'system'),
-(18, 'Rachel', 'Young', 'rachel.y@example.com', '901-234-5678', 'USA', 'Credit Card', '2025-08-04 11:25:00', '2025-08-04 11:25:00', 'system', 'system'),
-(19, 'Sam', 'Harris', 'sam.h@example.com', '234-567-8901', 'Canada', 'Bank Transfer', '2025-08-05 13:10:00', '2025-08-05 13:10:00', 'system', 'system'),
-(20, 'Tina', 'Nelson', 'tina.n@example.com', '567-890-1234', 'UK', 'Credit Card', '2025-08-06 09:00:00', '2025-08-06 09:00:00', 'system', 'system'),
-(21, 'Uma', 'Carter', 'uma.c@example.com', '890-123-4567', 'USA', 'PayPal', '2025-07-02 14:00:00', '2025-07-02 14:00:00', 'system', 'system'),
-(22, 'Victor', 'Mitchell', 'victor.m@example.com', '123-123-1234', 'Germany', 'Credit Card', '2025-07-04 10:30:00', '2025-07-04 10:30:00', 'system', 'system'),
-(23, 'Wendy', 'Perez', 'wendy.p@example.com', '456-456-4567', 'France', 'Bank Transfer', '2025-07-06 16:00:00', '2025-07-06 16:00:00', 'system', 'system'),
-(24, 'Xavier', 'Roberts', 'xavier.r@example.com', '789-789-7890', 'USA', 'Credit Card', '2025-07-08 11:45:00', '2025-07-08 11:45:00', 'system', 'system'),
-(25, 'Yara', 'Turner', 'yara.t@example.com', '012-012-0123', 'Australia', 'PayPal', '2025-07-10 13:20:00', '2025-07-10 13:20:00', 'system', 'system'),
-(26, 'Zane', 'Phillips', 'zane.p@example.com', '345-345-3456', 'Canada', 'Credit Card', '2025-07-12 09:10:00', '2025-07-12 09:10:00', 'system', 'system'),
-(27, 'Amy', 'Campbell', 'amy.c@example.com', '678-678-6789', 'UK', 'Bank Transfer', '2025-07-14 15:05:00', '2025-07-14 15:05:00', 'system', 'system'),
-(28, 'Ben', 'Parker', 'ben.p@example.com', '901-901-9012', 'USA', 'Credit Card', '2025-07-16 10:00:00', '2025-07-16 10:00:00', 'system', 'system'),
-(29, 'Chloe', 'Evans', 'chloe.e@example.com', '234-234-2345', 'New Zealand', 'PayPal', '2025-07-18 17:15:00', '2025-07-18 17:15:00', 'system', 'system'),
-(30, 'David', 'Edwards', 'david.e@example.com', '567-567-5678', 'USA', 'Credit Card', '2025-07-20 12:40:00', '2025-07-20 12:40:00', 'system', 'system'),
-(31, 'Fiona', 'Collins', 'fiona.c@example.com', '890-890-8901', 'Ireland', 'Bank Transfer', '2025-07-22 09:30:00', '2025-07-22 09:30:00', 'system', 'system'),
-(32, 'George', 'Stewart', 'george.s@example.com', '111-333-5555', 'USA', 'Credit Card', '2025-07-24 14:50:00', '2025-07-24 14:50:00', 'system', 'system'),
-(33, 'Hannah', 'Morris', 'hannah.m@example.com', '444-666-8888', 'Mexico', 'PayPal', '2025-07-26 10:20:00', '2025-07-26 10:20:00', 'system', 'system'),
-(34, 'Isaac', 'Rogers', 'isaac.r@example.com', '777-999-1111', 'USA', 'Credit Card', '2025-07-28 16:10:00', '2025-07-28 16:10:00', 'system', 'system'),
-(35, 'Julia', 'Reed', 'julia.r@example.com', '000-222-4444', 'Spain', 'Bank Transfer', '2025-07-30 11:00:00', '2025-07-30 11:00:00', 'system', 'system'),
-(36, 'Kyle', 'Cook', 'kyle.c@example.com', '333-555-7777', 'USA', 'Credit Card', '2025-08-06 10:00:00', '2025-08-06 10:00:00', 'system', 'system');
+    --
+    -- 3. Insert 7 Brands
+    --
+    INSERT INTO brands (name, description, created_at, updated_at) VALUES
+    ('Nvidia', 'Graphics processing units and chipsets.', start_date + INTERVAL '1 day', start_date + INTERVAL '1 day'),
+    ('Dell', 'Personal computers, servers, and related products.', start_date + INTERVAL '2 days', start_date + INTERVAL '2 days'),
+    ('Logitech', 'Computer peripherals and accessories.', start_date + INTERVAL '3 days', start_date + INTERVAL '3 days'),
+    ('Samsung', 'Electronics, appliances, and mobile devices.', start_date + INTERVAL '4 days', start_date + INTERVAL '4 days'),
+    ('Razer', 'Gaming hardware, laptops, and peripherals.', start_date + INTERVAL '5 days', start_date + INTERVAL '5 days'),
+    ('Corsair', 'PC components, gaming peripherals, and memory.', start_date + INTERVAL '6 days', start_date + INTERVAL '6 days'),
+    ('Seagate', 'Data storage solutions.', start_date + INTERVAL '7 days', start_date + INTERVAL '7 days');
 
--- Products Table Inserts (Tech/CS Focused)
-INSERT INTO products (product_id, brand_id, category_id, name, description, price, stock_quantity, created_at, updated_at, created_by, updated_by) VALUES
-(1, 3, 3, 'Gigabit Ethernet Switch', 'High-speed network switch for local area networks.', 79.95, 150, '2025-07-06 10:00:00', '2025-07-06 10:00:00', 'system', 'system'),
-(2, 8, 8, 'Mechanical Gaming Keyboard', 'Durable keyboard with customizable RGB lighting.', 85.00, 130, '2025-07-07 11:00:00', '2025-07-07 11:00:00', 'system', 'system'),
-(3, 1, 2, 'External SSD 1TB', 'Portable and fast external solid-state drive.', 120.00, 200, '2025-07-08 14:00:00', '2025-07-08 14:00:00', 'system', 'system'),
-(4, 1, 2, 'High-Performance CPU', 'Latest generation multi-core processor for demanding tasks.', 349.99, 80, '2025-07-09 09:30:00', '2025-07-09 09:30:00', 'system', 'system'),
-(5, 1, 2, 'Gaming Motherboard Z5', 'Advanced motherboard with RGB and overclocking support.', 189.00, 70, '2025-07-10 10:30:00', '2025-07-10 10:30:00', 'system', 'system'),
-(6, 3, 3, 'Wireless Router AX6000', 'Wi-Fi 6 router for blazing fast wireless speeds.', 199.00, 100, '2025-07-11 10:00:00', '2025-07-11 10:00:00', 'system', 'system'),
-(7, 9, 9, 'Flagship Smartphone X', 'Latest model smartphone with advanced camera and features.', 899.00, 110, '2025-07-12 15:30:00', '2025-07-12 15:30:00', 'system', 'system'),
-(8, 2, 1, 'DevOps Automation Tool', 'Software for streamlining development and operations.', 250.00, 80, '2025-07-13 09:00:00', '2025-07-13 09:00:00', 'system', 'system'),
-(9, 2, 1, 'Operating System Pro', 'Next-gen OS for enhanced productivity and security.', 149.50, 500, '2025-07-14 11:00:00', '2025-07-14 11:00:00', 'system', 'system'),
-(10, 4, 4, 'Cloud Storage Enterprise', 'Scalable cloud storage solution for large organizations.', 499.00, 50, '2025-07-15 14:00:00', '2025-07-15 14:00:00', 'system', 'system'),
-(11, 4, 4, 'Serverless Computing Platform', 'On-demand computing resources without server management.', 350.00, 60, '2025-07-16 13:30:00', '2025-07-16 13:30:00', 'system', 'system'),
-(12, 9, 9, 'Premium Tablet Pro', 'Versatile tablet for productivity and entertainment.', 549.00, 95, '2025-07-17 09:40:00', '2025-07-17 09:40:00', 'system', 'system'),
-(13, 3, 3, 'Fiber Optic Cable 100m', 'High-bandwidth cable for network infrastructure.', 50.00, 300, '2025-07-18 16:00:00', '2025-07-18 16:00:00', 'system', 'system'),
-(14, 2, 1, 'Database Management Suite', 'Comprehensive tools for data storage and retrieval.', 299.99, 120, '2025-07-19 10:00:00', '2025-07-19 10:00:00', 'system', 'system'),
-(15, 5, 5, 'Endpoint Protection Suite', 'AI-powered security for all network endpoints.', 99.00, 200, '2025-07-20 09:15:00', '2025-07-20 09:15:00', 'system', 'system'),
-(16, 5, 5, 'Network Firewall Appliance', 'Hardware firewall for robust network security.', 750.00, 30, '2025-07-21 08:45:00', '2025-07-21 08:45:00', 'system', 'system'),
-(17, 10, 1, 'Custom Software Development', 'Tailored software solutions for unique business needs.', 1500.00, 10, '2025-07-22 14:10:00', '2025-07-22 14:10:00', 'system', 'system'),
-(18, 6, 6, 'SSD 2TB NVMe', 'Ultra-fast solid-state drive for high-performance storage.', 220.00, 180, '2025-07-23 10:00:00', '2025-07-23 10:00:00', 'system', 'system'),
-(19, 6, 6, 'NAS Storage System', 'Network-attached storage for home and small office.', 399.00, 90, '2025-07-24 14:30:00', '2025-07-24 14:30:00', 'system', 'system'),
-(20, 1, 2, 'Mini PC Barebone Kit', 'Compact PC kit for custom builds.', 250.00, 60, '2025-07-25 11:45:00', '2025-07-25 11:45:00', 'system', 'system'),
-(21, 7, 7, 'Machine Learning Framework', 'Software library for developing AI models.', 120.00, 250, '2025-07-26 15:00:00', '2025-07-26 15:00:00', 'system', 'system'),
-(22, 3, 3, 'Managed Wi-Fi Service', 'Professional management of wireless networks.', 120.00, 20, '2025-07-27 10:55:00', '2025-07-27 10:55:00', 'system', 'system'),
-(23, 7, 7, 'AI Development Kit', 'Hardware and software for AI application development.', 500.00, 40, '2025-07-28 12:10:00', '2025-07-28 12:10:00', 'system', 'system'),
-(24, 13, 4, 'Hybrid Cloud Solution', 'Integration of private and public cloud environments.', 1800.00, 15, '2025-07-29 09:00:00', '2025-07-29 09:00:00', 'system', 'system'),
-(25, 14, 5, 'Threat Intelligence Platform', 'Real-time data on cyber threats and vulnerabilities.', 700.00, 25, '2025-07-30 16:00:00', '2025-07-30 16:00:00', 'system', 'system'),
-(26, 15, 6, 'Enterprise Backup Solution', 'Robust data backup and recovery for businesses.', 600.00, 35, '2025-08-01 11:00:00', '2025-08-01 11:00:00', 'system', 'system'),
-(27, 16, 7, 'Predictive Analytics Software', 'AI-driven software for forecasting and trend analysis.', 950.00, 18, '2025-08-02 14:30:00', '2025-08-02 14:30:00', 'system', 'system'),
-(28, 8, 8, 'Gaming Graphics Card RTX', 'High-end GPU for immersive gaming experiences.', 699.00, 70, '2025-08-03 09:00:00', '2025-08-03 09:00:00', 'system', 'system'),
-(29, 9, 9, 'Smartwatch OS Update', 'Software update for MobileTech smartwatches.', 0.00, 9999, '2025-08-04 10:00:00', '2025-08-04 10:00:00', 'system', 'system'),
-(30, 1, 2, 'CPU Cooling System', 'Advanced liquid cooling for high-performance CPUs.', 89.99, 100, '2025-08-05 11:00:00', '2025-08-05 11:00:00', 'system', 'system');
+    --
+    -- 4. Insert 9 Categories
+    --
+    INSERT INTO categories (name, description, created_at, updated_at) VALUES
+    ('Laptops', 'Portable computers for work and personal use.', start_date + INTERVAL '1 day', start_date + INTERVAL '1 day'),
+    ('Desktop PCs', 'Computer towers and all-in-one systems.', start_date + INTERVAL '2 days', start_date + INTERVAL '2 days'),
+    ('PC Components', 'Motherboards, CPUs, RAM, and GPUs.', start_date + INTERVAL '3 days', start_date + INTERVAL '3 days'),
+    ('Peripherals', 'Keyboards, mice, and webcams.', start_date + INTERVAL '4 days', start_date + INTERVAL '4 days'),
+    ('Monitors', 'Displays for computers and gaming.', start_date + INTERVAL '5 days', start_date + INTERVAL '5 days'),
+    ('Storage', 'HDDs, SSDs, and external drives.', start_date + INTERVAL '6 days', start_date + INTERVAL '6 days'),
+    ('Audio Equipment', 'Headphones, speakers, and microphones.', start_date + INTERVAL '7 days', start_date + INTERVAL '7 days'),
+    ('Networking', 'Routers, switches, and modems.', start_date + INTERVAL '8 days', start_date + INTERVAL '8 days'),
+    ('Software', 'Operating systems and productivity software.', start_date + INTERVAL '9 days', start_date + INTERVAL '9 days');
 
+    --
+    -- 5. Insert 29 Products with safe stock levels
+    --
+    INSERT INTO products (brand_id, category_id, name, description, price, cost_price, stock_quantity, created_at, updated_at) VALUES
+    (1, 3, 'GeForce RTX 4080', 'High-end graphics card for gaming and creative work.', 1199.99, 950.00, 50, start_date + INTERVAL '10 days', start_date + INTERVAL '10 days'),
+    (2, 1, 'XPS 15 Laptop', 'Powerful and sleek laptop for professionals.', 1899.00, 1500.00, 25, start_date + INTERVAL '10 days 1 hour', start_date + INTERVAL '10 days 1 hour'),
+    (3, 4, 'MX Master 3S Mouse', 'Advanced ergonomic mouse for productivity.', 99.00, 65.00, 150, start_date + INTERVAL '11 days', start_date + INTERVAL '11 days'),
+    (3, 4, 'K380 Bluetooth Keyboard', 'Multi-device Bluetooth keyboard.', 39.99, 22.00, 10, start_date + INTERVAL '11 days 1 hour', start_date + INTERVAL '11 days 1 hour'),
+    (4, 5, 'Odyssey G9 Gaming Monitor', '49-inch curved ultrawide gaming monitor.', 1499.00, 1000.00, 5, start_date + INTERVAL '12 days', start_date + INTERVAL '12 days'),
+    (4, 6, '870 EVO SSD 1TB', 'High-performance internal SATA SSD.', 89.99, 60.00, 80, start_date + INTERVAL '12 days 1 hour', start_date + INTERVAL '12 days 1 hour'),
+    (5, 4, 'DeathAdder V3 Pro Mouse', 'Lightweight ergonomic gaming mouse.', 149.99, 100.00, 300, start_date + INTERVAL '13 days', start_date + INTERVAL '13 days'),
+    (5, 1, 'Blade 16 Gaming Laptop', 'Gaming powerhouse with a 16-inch display.', 2999.00, 2200.00, 12, start_date + INTERVAL '13 days 1 hour', start_date + INTERVAL '13 days 1 hour'),
+    (6, 3, 'Vengeance RGB Pro RAM 32GB', 'High-performance DDR4 memory kit.', 99.00, 65.00, 9, start_date + INTERVAL '14 days', start_date + INTERVAL '14 days'),
+    (6, 7, 'Virtuoso RGB Wireless Headset', 'Premium wireless gaming headset.', 159.00, 100.00, 20, start_date + INTERVAL '14 days 1 hour', start_date + INTERVAL '14 days 1 hour'),
+    (7, 6, 'Barracuda HDD 4TB', 'Internal hard disk drive for mass storage.', 85.00, 50.00, 15, start_date + INTERVAL '15 days', start_date + INTERVAL '15 days'),
+    (7, 6, 'IronWolf Pro NAS Drive 8TB', 'Reliable drive for network attached storage.', 250.00, 180.00, 5, start_date + INTERVAL '15 days 1 hour', start_date + INTERVAL '15 days 1 hour'),
+    (1, 3, 'GeForce RTX 4070', 'Efficient graphics card for high-refresh gaming.', 599.00, 450.00, 60, start_date + INTERVAL '16 days', start_date + INTERVAL '16 days'),
+    (2, 2, 'Inspiron 27 All-in-One', 'Compact desktop PC with a large display.', 899.00, 650.00, 100, start_date + INTERVAL '16 days 1 hour', start_date + INTERVAL '16 days 1 hour'),
+    (3, 4, 'C920s Pro HD Webcam', 'Full HD webcam with privacy shutter.', 69.99, 40.00, 25, start_date + INTERVAL '17 days', start_date + INTERVAL '17 days'),
+    (4, 5, 'ViewFinity S9 5K Monitor', 'Professional-grade monitor with high resolution.', 1599.00, 1200.00, 40, start_date + INTERVAL '17 days 1 hour', start_date + INTERVAL '17 days 1 hour'),
+    (5, 4, 'BlackWidow V4 Keyboard', 'Mechanical gaming keyboard with macro keys.', 199.99, 130.00, 3, start_date + INTERVAL '18 days', start_date + INTERVAL '18 days'),
+    (6, 7, 'HS80 RGB USB Headset', 'Comfortable gaming headset with spatial audio.', 129.99, 85.00, 50, start_date + INTERVAL '18 days 1 hour', start_date + INTERVAL '18 days 1 hour'),
+    (7, 6, 'Exos X20 Enterprise HDD 20TB', 'High-capacity drive for enterprise environments.', 499.00, 350.00, 10, start_date + INTERVAL '19 days', start_date + INTERVAL '19 days'),
+    (1, 3, 'GeForce RTX 4060', 'Entry-level graphics card for 1080p gaming.', 299.00, 220.00, 200, start_date + INTERVAL '19 days 1 hour', start_date + INTERVAL '19 days 1 hour'),
+    (2, 1, 'Latitude 5430', 'Business laptop for on-the-go professionals.', 1100.00, 850.00, 30, start_date + INTERVAL '20 days', start_date + INTERVAL '20 days'),
+    (3, 4, 'G Pro X Superlight Mouse', 'Ultralight wireless gaming mouse.', 159.00, 100.00, 15, start_date + INTERVAL '20 days 1 hour', start_date + INTERVAL '20 days 1 hour'),
+    (4, 5, 'M8 Smart Monitor', 'All-in-one monitor with streaming apps.', 699.00, 500.00, 75, start_date + INTERVAL '21 days', start_date + INTERVAL '21 days'),
+    (5, 7, 'Kraken V3 Pro Headset', 'Gaming headset with haptic feedback.', 199.00, 130.00, 8, start_date + INTERVAL '21 days 1 hour', start_date + INTERVAL '21 days 1 hour'),
+    (6, 3, 'iCUE H150i AIO Liquid Cooler', 'All-in-one CPU liquid cooler.', 199.00, 120.00, 150, start_date + INTERVAL '22 days', start_date + INTERVAL '22 days'),
+    (7, 6, 'FireCuda 530 SSD 2TB', 'Blazing-fast M.2 NVMe SSD for gaming.', 199.00, 140.00, 6, start_date + INTERVAL '22 days 1 hour', start_date + INTERVAL '22 days 1 hour'),
+    (1, 3, 'GeForce RTX 4090', 'The flagship graphics card for enthusiast gamers.', 1999.00, 1500.00, 120, start_date + INTERVAL '23 days', start_date + INTERVAL '23 days'),
+    (2, 2, 'Alienware Aurora R16', 'High-performance gaming desktop.', 2499.00, 1800.00, 90, start_date + INTERVAL '23 days 1 hour', start_date + INTERVAL '23 days 1 hour'),
+    (3, 8, 'Pro X Gaming Headset', 'Tournament-grade gaming headset.', 129.00, 80.00, 20, start_date + INTERVAL '24 days', start_date + INTERVAL '24 days');
 
--- Shipping Addresses Inserts
--- Using the first 10 customers (IDs 1-10) for orders
-INSERT INTO shipping_addresses (address_id, customer_id, street_address, city, state, postal_code, country, created_at, updated_at, created_by, updated_by) VALUES
-(1, 1, '456 Tech Avenue', 'San Jose', 'CA', '95101', 'USA', '2025-08-05 12:00:00', '2025-08-05 12:00:00', 'system', 'system'),
-(2, 2, '789 Data Drive', 'Vancouver', 'BC', 'V6B 1C0', 'Canada', '2025-08-05 12:01:00', '2025-08-05 12:01:00', 'system', 'system'),
-(3, 3, '101 Cyber Lane', 'London', 'ENG', 'SW1A 0AA', 'UK', '2025-08-05 12:02:00', '2025-08-05 12:02:00', 'system', 'system'),
-(4, 4, '202 Logic Gate', 'Austin', 'TX', '78701', 'USA', '2025-08-05 12:03:00', '2025-08-05 12:03:00', 'system', 'system'),
-(5, 5, '303 Quantum Road', 'Sydney', 'NSW', '2000', 'Australia', '2025-08-05 12:04:00', '2025-08-05 12:04:00', 'system', 'system'),
-(6, 6, '404 Algorithm Alley', 'Berlin', 'BE', '10115', 'Germany', '2025-08-05 12:05:00', '2025-08-05 12:05:00', 'system', 'system'),
-(7, 7, '505 Network Nook', 'Paris', 'IDF', '75001', 'France', '2025-08-05 12:06:00', '2025-08-05 12:06:00', 'system', 'system'),
-(8, 8, '606 Code Street', 'Seattle', 'WA', '98101', 'USA', '2025-08-05 12:07:00', '2025-08-05 12:07:00', 'system', 'system'),
-(9, 9, '707 Byte Boulevard', 'Wellington', 'WGN', '6011', 'New Zealand', '2025-08-05 12:08:00', '2025-08-05 12:08:00', 'system', 'system'),
-(10, 10, '808 Pixel Place', 'Toronto', 'ON', 'M5V 2T6', 'Canada', '2025-08-05 12:09:00', '2025-08-05 12:09:00', 'system', 'system');
+    --
+    -- 6. Insert 30 Customers
+    --
+    INSERT INTO customers (first_name, last_name, email, phone, country, default_payment_method, status, created_at, updated_at)
+    SELECT
+        split_part(customer_names[i], ' ', 1),
+        split_part(customer_names[i], ' ', 2),
+        customer_emails[i],
+        '123-456-' || lpad(i::text, 4, '0'),
+        customer_countries[1 + (i - 1) % array_length(customer_countries, 1)],
+        CASE (i % 3)
+            WHEN 0 THEN 'Credit Card'
+            WHEN 1 THEN 'PayPal'
+            ELSE 'Bank Transfer'
+        END,
+        'active',
+        start_date + INTERVAL '25 days' + (i * INTERVAL '10 minutes'),
+        start_date + INTERVAL '25 days' + (i * INTERVAL '10 minutes')
+    FROM generate_series(1, 30) AS i;
 
--- Orders Inserts
-INSERT INTO orders (order_id, customer_id, shipping_address_id, order_date, status, total_amount, payment_status, created_at, updated_at, created_by, updated_by) VALUES
-(1, 1, 1, '2025-08-05 12:10:00', 'order placed', 284.95, 'Completed', '2025-08-05 12:10:00', '2025-08-05 12:10:00', 'system', 'system'),
-(2, 2, 2, '2025-08-05 12:15:00', 'order placed', 538.99, 'Completed', '2025-08-05 12:15:00', '2025-08-05 12:15:00', 'system', 'system'),
-(3, 3, 3, '2025-08-05 12:20:00', 'order placed', 398.00, 'Completed', '2025-08-05 12:20:00', '2025-08-05 12:20:00', 'system', 'system'),
-(4, 4, 4, '2025-08-05 12:25:00', 'order placed', 899.00, 'Completed', '2025-08-05 12:25:00', '2025-08-05 12:25:00', 'system', 'system'),
-(5, 5, 5, '2025-08-05 12:30:00', 'order placed', 698.50, 'Completed', '2025-08-05 12:30:00', '2025-08-05 12:30:00', 'system', 'system'),
-(6, 6, 6, '2025-08-05 12:35:00', 'order placed', 849.00, 'Completed', '2025-08-05 12:35:00', '2025-08-05 12:35:00', 'system', 'system'),
-(7, 7, 7, '2025-08-05 12:40:00', 'order placed', 599.00, 'Completed', '2025-08-05 12:40:00', '2025-08-05 12:40:00', 'system', 'system'),
-(8, 8, 8, '2025-08-05 12:45:00', 'order placed', 299.99, 'Completed', '2025-08-05 12:45:00', '2025-08-05 12:45:00', 'system', 'system'),
-(9, 9, 9, '2025-08-05 12:50:00', 'order placed', 849.00, 'Completed', '2025-08-05 12:50:00', '2025-08-05 12:50:00', 'system', 'system'),
-(10, 10, 10, '2025-08-05 12:55:00', 'order placed', 1500.00, 'Completed', '2025-08-05 12:55:00', '2025-08-05 12:55:00', 'system', 'system');
+    --
+    -- 7. Insert 30 Shipping Addresses (one for each customer)
+    --
+    INSERT INTO shipping_addresses (customer_id, street_address, city, state, postal_code, country, created_at, updated_at)
+    SELECT
+        customer_id,
+        'Street ' || customer_id || ' Apt. ' || (customer_id % 5 + 1),
+        'City ' || (customer_id % 7 + 1),
+        'State ' || (customer_id % 5 + 1),
+        'P' || lpad(customer_id::text, 4, '0'),
+        country,
+        created_at,
+        updated_at
+    FROM customers
+    ORDER BY customer_id;
 
--- Order Items Inserts (linked to orders and products)
-INSERT INTO order_items (order_item_id, order_id, product_id, quantity, price, created_at, updated_at, created_by, updated_by) VALUES
-(1, 1, 1, 1, 79.95, '2025-08-05 12:10:01', '2025-08-05 12:10:01', 'system', 'system'), -- Product ID 1: Gigabit Ethernet Switch
-(2, 1, 2, 1, 85.00, '2025-08-05 12:10:02', '2025-08-05 12:10:02', 'system', 'system'), -- Product ID 2: Mechanical Gaming Keyboard
-(3, 1, 3, 1, 120.00, '2025-08-05 12:10:03', '2025-08-05 12:10:03', 'system', 'system'), -- Product ID 3: External SSD 1TB
+    --
+    -- 8. Insert 30 Orders
+    --
+    INSERT INTO orders (customer_id, shipping_address_id, order_date, total_amount, payment_status, created_at, updated_at)
+    SELECT
+        s.customer_id,
+        s.address_id,
+        start_date + INTERVAL '26 days' + (s.customer_id * INTERVAL '20 minutes'),
+        0, -- Initial amount, will be updated by trigger
+        'Pending', -- Initial status, will be updated by trigger
+        start_date + INTERVAL '26 days' + (s.customer_id * INTERVAL '20 minutes'),
+        start_date + INTERVAL '26 days' + (s.customer_id * INTERVAL '20 minutes')
+    FROM shipping_addresses s
+    ORDER BY s.customer_id;
 
-(4, 2, 4, 1, 349.99, '2025-08-05 12:15:01', '2025-08-05 12:15:01', 'system', 'system'), -- Product ID 4: High-Performance CPU
-(5, 2, 5, 1, 189.00, '2025-08-05 12:15:02', '2025-08-05 12:15:02', 'system', 'system'), -- Product ID 5: Gaming Motherboard Z5
+    --
+    -- 9. Insert Order Items for Each Order (exactly two per order)
+    --
+    -- This section has been completely revised to use deterministic values
+    -- to prevent any stock-related errors.
+    --
+    DECLARE
+        v_order_id INTEGER;
+        v_product_id1 INTEGER;
+        v_product_id2 INTEGER;
+    BEGIN
+        FOR v_order_id IN 1..30 LOOP
+            -- Determine two product IDs for this order deterministically
+            v_product_id1 := (v_order_id % 29) + 1;
+            v_product_id2 := (v_order_id % 28) + 1;
 
-(6, 3, 6, 2, 199.00, '2025-08-05 12:20:01', '2025-08-05 12:20:01', 'system', 'system'), -- Product ID 6: Wireless Router AX6000
+            -- Get price from products table
+            INSERT INTO order_items (order_id, product_id, quantity, price, created_at, updated_at)
+            SELECT v_order_id, product_id, 1, price, start_date + INTERVAL '26 days 5 minutes', start_date + INTERVAL '26 days 5 minutes'
+            FROM products
+            WHERE product_id = v_product_id1;
 
-(7, 4, 7, 1, 899.00, '2025-08-05 12:25:01', '2025-08-05 12:25:01', 'system', 'system'), -- Product ID 7: Flagship Smartphone X
+            -- Add a second item to the order
+            INSERT INTO order_items (order_id, product_id, quantity, price, created_at, updated_at)
+            SELECT v_order_id, product_id, 1, price, start_date + INTERVAL '26 days 5 minutes', start_date + INTERVAL '26 days 5 minutes'
+            FROM products
+            WHERE product_id = v_product_id2;
+        END LOOP;
+    END;
 
-(8, 5, 8, 1, 250.00, '2025-08-05 12:30:01', '2025-08-05 12:30:01', 'system', 'system'), -- Product ID 8: DevOps Automation Tool
-(9, 5, 9, 3, 149.50, '2025-08-05 12:30:02', '2025-08-05 12:30:02', 'system', 'system'), -- Product ID 9: Operating System Pro
+    -- Update a few invoice records to trigger 'paid' status and create sales records.
+    -- This simulates a portion of orders being paid for.
+    UPDATE invoices
+    SET paid_amount = total_amount
+    WHERE invoice_id IN (1, 5, 10, 15, 20);
 
-(10, 6, 10, 1, 499.00, '2025-08-05 12:35:01', '2025-08-05 12:35:01', 'system', 'system'), -- Product ID 10: Cloud Storage Enterprise
-(11, 6, 11, 1, 350.00, '2025-08-05 12:35:02', '2025-08-05 12:35:02', 'system', 'system'), -- Product ID 11: Serverless Computing Platform
-
-(12, 7, 12, 1, 549.00, '2025-08-05 12:40:01', '2025-08-05 12:40:01', 'system', 'system'), -- Product ID 12: Premium Tablet Pro
-(13, 7, 13, 1, 50.00, '2025-08-05 12:40:02', '2025-08-05 12:40:02', 'system', 'system'), -- Product ID 13: Fiber Optic Cable 100m
-
-(14, 8, 14, 1, 299.99, '2025-08-05 12:45:01', '2025-08-05 12:45:01', 'system', 'system'), -- Product ID 14: Database Management Suite
-
-(15, 9, 15, 1, 99.00, '2025-08-05 12:50:01', '2025-08-05 12:50:01', 'system', 'system'), -- Product ID 15: Endpoint Protection Suite
-(16, 9, 16, 1, 750.00, '2025-08-05 12:50:02', '2025-08-05 12:50:02', 'system', 'system'), -- Product ID 16: Network Firewall Appliance
-
-(17, 10, 17, 1, 1500.00, '2025-08-05 12:55:01', '2025-08-05 12:55:01', 'system', 'system'); -- Product ID 17: Custom Software Development
-
--- Invoices Inserts (Manually inserted for historical date consistency)
--- Issue date matches order_date, due_date is 7 days after issue_date
-INSERT INTO invoices (invoice_id, order_id, invoice_number, issue_date, due_date, total_amount, paid_amount, status, is_overdue, created_at, updated_at, created_by, updated_by) VALUES
-(1, 1, 'INV-1', '2025-08-05 12:10:00', '2025-08-12 12:10:00', 284.95, 284.95, 'paid', FALSE, '2025-08-05 12:10:05', '2025-08-05 12:10:05', 'system', 'system'),
-(2, 2, 'INV-2', '2025-08-05 12:15:00', '2025-08-12 12:15:00', 538.99, 538.99, 'paid', FALSE, '2025-08-05 12:15:05', '2025-08-05 12:15:05', 'system', 'system'),
-(3, 3, 'INV-3', '2025-08-05 12:20:00', '2025-08-12 12:20:00', 398.00, 398.00, 'paid', FALSE, '2025-08-05 12:20:05', '2025-08-05 12:20:05', 'system', 'system'),
-(4, 4, 'INV-4', '2025-08-05 12:25:00', '2025-08-12 12:25:00', 899.00, 899.00, 'paid', FALSE, '2025-08-05 12:25:05', '2025-08-05 12:25:05', 'system', 'system'),
-(5, 5, 'INV-5', '2025-08-05 12:30:00', '2025-08-12 12:30:00', 698.50, 698.50, 'paid', FALSE, '2025-08-05 12:30:05', '2025-08-05 12:30:05', 'system', 'system'),
-(6, 6, 'INV-6', '2025-08-05 12:35:00', '2025-08-12 12:35:00', 849.00, 849.00, 'paid', FALSE, '2025-08-05 12:35:05', '2025-08-05 12:35:05', 'system', 'system'),
-(7, 7, 'INV-7', '2025-08-05 12:40:00', '2025-08-12 12:40:00', 599.00, 599.00, 'paid', FALSE, '2025-08-05 12:40:05', '2025-08-05 12:40:05', 'system', 'system'),
-(8, 8, 'INV-8', '2025-08-05 12:45:00', '2025-08-12 12:45:00', 299.99, 299.99, 'paid', FALSE, '2025-08-05 12:45:05', '2025-08-05 12:45:05', 'system', 'system'),
-(9, 9, 'INV-9', '2025-08-05 12:50:00', '2025-08-12 12:50:00', 849.00, 849.00, 'paid', FALSE, '2025-08-05 12:50:05', '2025-08-05 12:50:05', 'system', 'system'),
-(10, 10, 'INV-10', '2025-08-05 12:55:00', '2025-08-12 12:55:00', 1500.00, 1500.00, 'paid', FALSE, '2025-08-05 12:55:05', '2025-08-05 12:55:05', 'system', 'system');
-
--- Sales Inserts (Manually inserted for historical date consistency, assuming immediate payment)
-INSERT INTO sales (sale_id, order_id, invoice_id, sale_date, total_amount, payment_method, payment_status, created_at, updated_at, created_by, updated_by) VALUES
-(1, 1, 1, '2025-08-05 12:10:10', 284.95, 'Credit Card', 'Completed', '2025-08-05 12:10:10', '2025-08-05 12:10:10', 'system', 'system'),
-(2, 2, 2, '2025-08-05 12:15:10', 538.99, 'PayPal', 'Completed', '2025-08-05 12:15:10', '2025-08-05 12:15:10', 'system', 'system'),
-(3, 3, 3, '2025-08-05 12:20:10', 398.00, 'Bank Transfer', 'Completed', '2025-08-05 12:20:10', '2025-08-05 12:20:10', 'system', 'system'),
-(4, 4, 4, '2025-08-05 12:25:10', 899.00, 'Credit Card', 'Completed', '2025-08-05 12:25:10', '2025-08-05 12:25:10', 'system', 'system'),
-(5, 5, 5, '2025-08-05 12:30:10', 698.50, 'PayPal', 'Completed', '2025-08-05 12:30:10', '2025-08-05 12:30:10', 'system', 'system'),
-(6, 6, 6, '2025-08-05 12:35:10', 849.00, 'Credit Card', 'Completed', '2025-08-05 12:35:10', '2025-08-05 12:35:10', 'system', 'system'),
-(7, 7, 7, '2025-08-05 12:40:10', 599.00, 'Bank Transfer', 'Completed', '2025-08-05 12:40:10', '2025-08-05 12:40:10', 'system', 'system'),
-(8, 8, 8, '2025-08-05 12:45:10', 299.99, 'Credit Card', 'Completed', '2025-08-05 12:45:10', '2025-08-05 12:45:10', 'system', 'system'),
-(9, 9, 9, '2025-08-05 12:50:10', 849.00, 'PayPal', 'Completed', '2025-08-05 12:50:10', '2025-08-05 12:50:10', 'system', 'system'),
-(10, 10, 10, '2025-08-05 12:55:10', 1500.00, 'Credit Card', 'Completed', '2025-08-05 12:55:10', '2025-08-05 12:55:10', 'system', 'system');
-
--- Sales Returns Inserts
-INSERT INTO sales_returns (return_id, order_item_id, returned_quantity, return_date, return_reason, status, created_at, updated_at, created_by, updated_by) VALUES
-(1, 1, 1, '2025-08-05 13:00:00', 'Defective item', 'Completed', '2025-08-05 13:00:00', '2025-08-05 13:00:00', 'system', 'system'), -- Return Product ID 1 from Order 1
-(2, 4, 1, '2025-08-05 13:05:00', 'Changed mind', 'Completed', '2025-08-05 13:05:00', '2025-08-05 13:05:00', 'system', 'system'); -- Return Product ID 4 from Order 2
+    -- Update a few products to check for low stock alerts (this will trigger `check_inventory_threshold`).
+    UPDATE products
+    SET stock_quantity = 5
+    WHERE product_id IN (1, 2, 3);
+END $$;

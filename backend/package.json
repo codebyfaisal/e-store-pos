@@ -1,7 +1,7 @@
 {
   "name": "e-store",
   "version": "1.0.0",
-  "description": "E-Store Backend Application - Tech Stack: Node.js, Express, PostgreSQL, @neondatabase/serverless, @arcjet",
+  "description": "E-Store Backend Application - Tech Stack: Node.js, Express, PostgreSQL, supabase, @arcjet",
   "main": "index.js",
   "scripts": {
     "dev": "nodemon index.js",
@@ -11,7 +11,7 @@
     "node",
     "express",
     "postgresql",
-    "neondatabase",
+    "supabase",
     "arcjet",
     "backend",
     "e-store",
