@@ -1,0 +1,99 @@
+# ===================
+# Global
+# ===================
+node_modules/
+dist/
+build/
+.env
+.env.*.local
+*.env.local
+.DS_Store
+*.log
+*.gz
+*.tmp
+*.bak
+*.tgz
+*.tar.gz
+*.zip
+*.swp
+*.swo
+Thumbs.db
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ===================
+# Editor & OS Files
+# ===================
+.vscode/
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# ===================
+# Backend (Node/Express)
+# ===================
+/server/node_modules/
+/server/.env
+/server/.env.local
+/server/package-lock.json
+/server/dist/
+server/coverage/
+
+# Database-related
+*.sqlite
+*.sqlite3
+*.db
+*.pgsql
+*.dump
+
+# ORM Tools (Prisma, Sequelize, etc.)
+prisma/migrations/
+prisma/dev.db
+/seeds/
+
+# ===================
+# Frontend (React)
+# ===================
+/client/node_modules/
+/client/.env
+/client/.env.local
+/client/package-lock.json
+/client/build/
+client/coverage/
+
+# React Testing
+client/jest-test-results.json
+
+# ===================
+# Docker & Deployment
+# ===================
+docker-compose.override.yml
+*.pid
+*.seed.js
+*.seed.ts
+tmp/
+
+# ===================
+# Logs
+# ===================
+logs/
+log.txt
+
+# ===================
+# Coverage
+# ===================
+coverage/
+.cache/
+.cache-loader/
+
+# ===================
+# Misc
+# ===================
+readme.md
