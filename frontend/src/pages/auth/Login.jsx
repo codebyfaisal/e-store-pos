@@ -5,7 +5,7 @@ import { useAuthStore } from "@/store/index.js";
 import api from "@/services/api.js";
 
 const Login = () => {
-  const [form, setForm] = useState({ email: "", password: "" });
+  const [form, setForm] = useState({ email: "faisal@gmail.com", password: "1234" });
   const { isLoginLoading, setIsLoginLoading, isAuthenticated } = useAuthStore();
   const [error, setError] = useState(null);
   const navigate = useNavigate();
